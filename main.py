@@ -1,8 +1,9 @@
 import random
 import pygame
+from tkinter import *
 
 
-class grid:
+class Grid:
     def __init__(self, size=100, window_size=800) -> None:
         if 0 < size <= 200:
             self.size = size
@@ -11,7 +12,7 @@ class grid:
         self.array = [[0] * size for _ in range(size)]
         self.window_size = window_size
         self.tile_size = window_size // size
-        pygame.display.set_caption("Game of Life")
+        pygame.display.set_caption("Game of Life by Friedrich Decker")
         self.window = pygame.display.set_mode((window_size, window_size))
 
     def generate_random(self, p=0.5) -> None:
@@ -19,19 +20,19 @@ class grid:
             for j in range(0, self.size):
                 self.array[i][j] = 1 if random.uniform(0, 1) < p else 0
 
-    def set_window_size(self, window_size):
+    def set_window_size(self, window_size) -> None:
         self.window_size = window_size
 
-    def get_window_size(self):
+    def get_window_size(self) -> int:
         return self.window_size
 
-    def set_window(self, window):
+    def set_window(self, window) -> None:
         self.window = window
 
-    def get_window(self):
+    def get_window(self) -> pygame.display:
         return self.window
 
-    def set_grid(self, array):
+    def set_grid(self, array) -> None:
         self.array = array
 
     def get_grid(self) -> list:
@@ -43,22 +44,24 @@ class grid:
     def get_tile(self, row, col) -> int:
         return self.array[row][col]
 
+    # living cells in Moore neighbourhood
     def get_living_neighbours_count(self, row, col) -> int:
         left = col - 1 if col > 0 else self.size - 1
         right = col + 1 if col < self.size - 1 else 0
         top = row - 1 if row > 0 else self.size - 1
         bottom = row + 1 if row < self.size - 1 else 0
         total = 0
-        total += self.array[row][left]
-        total += self.array[row][right]
-        total += self.array[top][col]
-        total += self.array[bottom][col]
-        total += self.array[top][left]
-        total += self.array[top][right]
-        total += self.array[bottom][left]
-        total += self.array[bottom][right]
+        total += self.array[row][left]      # W
+        total += self.array[row][right]     # E
+        total += self.array[top][col]       # N
+        total += self.array[bottom][col]    # S
+        total += self.array[top][left]      # NW
+        total += self.array[top][right]     # NE
+        total += self.array[bottom][left]   # SW
+        total += self.array[bottom][right]  # SE
         return total
 
+    # number of living cells on entire grid
     def get_total_living(self) -> int:
         total = 0
         for row in self.array:
@@ -69,6 +72,7 @@ class grid:
         for row in self.array:
             print(row)
 
+    # update
     def next_period(self) -> int:
         tmp = []
         total = 0
@@ -83,7 +87,8 @@ class grid:
                 total += self.array[i][j]
         return total
 
-    def redraw(self):
+    # draw pygame grid
+    def redraw(self) -> None:
         self.window.fill((255, 255, 255))
         for idy, row in enumerate(self.array):
             for idx, cell in enumerate(row):
@@ -114,8 +119,33 @@ class grid:
 
 
 def main() -> None:
-    g = grid(200, 800)
-    g.generate_random()
+    size = 200
+    p = 0.5
+
+    master = Tk()
+    Label(master, text="Grid size:").grid(row=0)
+    Label(master, text="Alive probability:").grid(row=1)
+
+    e1 = Entry(master)
+    e1.insert(0, "200")
+    e2 = Entry(master)
+    e2.insert(0, "0.5")
+
+    e1.grid(row=0, column=1)
+    e2.grid(row=1, column=1)
+
+    def show_entry_fields():
+        nonlocal size, p
+        size = int(e1.get())
+        p = float(e2.get())
+        master.after(1, master.destroy)
+
+    Button(master, text='Start', command=show_entry_fields).grid(row=3, column=1, sticky=W, pady=4)
+
+    master.mainloop()
+    g = Grid(size, 800)
+    g.generate_random(p)
+
     g.run()
 
 
