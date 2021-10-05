@@ -15,34 +15,11 @@ class Grid:
         pygame.display.set_caption("Game of Life by Friedrich Decker")
         self.window = pygame.display.set_mode((window_size, window_size))
 
+    # generate random grid, probability parameter p for each cell to be alive at start
     def generate_random(self, p=0.5) -> None:
         for i in range(0, self.size):
             for j in range(0, self.size):
                 self.array[i][j] = 1 if random.uniform(0, 1) < p else 0
-
-    def set_window_size(self, window_size) -> None:
-        self.window_size = window_size
-
-    def get_window_size(self) -> int:
-        return self.window_size
-
-    def set_window(self, window) -> None:
-        self.window = window
-
-    def get_window(self) -> pygame.display:
-        return self.window
-
-    def set_grid(self, array) -> None:
-        self.array = array
-
-    def get_grid(self) -> list:
-        return self.array
-
-    def set_tile(self, row, col, val) -> None:
-        self.array[row][col] = val
-
-    def get_tile(self, row, col) -> int:
-        return self.array[row][col]
 
     # living cells in Moore neighbourhood
     def get_living_neighbours_count(self, row, col) -> int:
@@ -67,10 +44,6 @@ class Grid:
         for row in self.array:
             total += sum(row)
         return total
-
-    def print_grid(self) -> None:
-        for row in self.array:
-            print(row)
 
     # update
     def next_period(self) -> int:
@@ -100,6 +73,7 @@ class Grid:
                                  self.tile_size))
         pygame.display.update()
 
+    # run the Game of Life - either infinite number of repetitions or specified number of rounds
     def run(self, n=None) -> None:
         if not n:
             play = True
@@ -117,19 +91,52 @@ class Grid:
                 if self.next_period() == 0:
                     break
 
+    # debug output, print grid to terminal
+    def print_grid(self) -> None:
+        for row in self.array:
+            print(row)
+
+    ###### ------------------- ###
+    #    GETTERS AND SETTERS     #
+    ###### ------------------- ###
+
+    def set_window_size(self, window_size) -> None:
+        self.window_size = window_size
+
+    def get_window_size(self) -> int:
+        return self.window_size
+
+    def set_window(self, window) -> None:
+        self.window = window
+
+    def get_window(self) -> pygame.display:
+        return self.window
+
+    def set_grid(self, array) -> None:
+        self.array = array
+
+    def get_grid(self) -> list:
+        return self.array
+
+    def set_tile(self, row, col, val) -> None:
+        self.array[row][col] = val
+
+    def get_tile(self, row, col) -> int:
+        return self.array[row][col]
+
 
 def main() -> None:
-    size = 200
-    p = 0.5
+    size = 200      # grid size (number of tiles per side)
+    p = 0.5         # probability for each cell to be alive at start
 
     master = Tk()
     Label(master, text="Grid size:").grid(row=0)
     Label(master, text="Alive probability:").grid(row=1)
 
     e1 = Entry(master)
-    e1.insert(0, "200")
+    e1.insert(0, str(size))
     e2 = Entry(master)
-    e2.insert(0, "0.5")
+    e2.insert(0, str(p))
 
     e1.grid(row=0, column=1)
     e2.grid(row=1, column=1)
@@ -143,6 +150,7 @@ def main() -> None:
     Button(master, text='Start', command=show_entry_fields).grid(row=3, column=1, sticky=W, pady=4)
 
     master.mainloop()
+
     g = Grid(size, 800)
     g.generate_random(p)
 
